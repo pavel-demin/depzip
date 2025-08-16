@@ -58,6 +58,7 @@ def bundle(modules=[], includes=[], excludes=[], output="bundle.zip"):
     # Include additional files and directories
 
     for path in includes:
+        path = path if os.path.exists(path) else os.path.join(directory, path)
         if os.path.isdir(path):
             for root, dirs, files in os.walk(path):
                 dirs[:] = [d for d in dirs if d != "__pycache__"]
@@ -72,9 +73,11 @@ def bundle(modules=[], includes=[], excludes=[], output="bundle.zip"):
     # Create the output zip file
 
     with ZipFile(output, mode="w", compression=ZIP_DEFLATED) as zf:
-        for name, files in licenses.items():
+        for d, files in licenses.items():
             for f in sorted(files):
-                zf.write(f, os.path.join("Licenses", name, os.path.basename(f)))
+                name = os.path.join("Licenses", d, os.path.basename(f))
+                zf.write(f, name)
         for f in sorted(bundle):
             if os.path.isfile(f):
-                zf.write(f, os.path.relpath(f, directory))
+                name = os.path.relpath(f, directory) if os.path.isabs(f) else f
+                zf.write(f, name)
