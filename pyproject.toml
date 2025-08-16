@@ -1,6 +1,6 @@
 [project]
 name = "depzip"
-version = "1.2"
+version = "1.3"
 description = "A small library for zipping Python application dependencies"
 authors = [{name = "Pavel Demin"}]
 dependencies = ["dllist"]

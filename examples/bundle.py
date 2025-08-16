@@ -3,7 +3,9 @@ import depzip
 depzip.bundle(
     modules=[
         "matplotlib.backends.backend_qtagg",
-        "mpl_toolkits.mplot3d",
+        "matplotlib.figure",
+        "matplotlib.style",
+        "matplotlib",
         "numpy",
         "PySide6.QtCore",
         "PySide6.QtGui",

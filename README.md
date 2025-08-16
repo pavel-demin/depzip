@@ -1,6 +1,6 @@
 This library can be used for zipping Python application dependencies.
 
-This library uses the [modulefinder](https://docs.python.org/3/library/modulefinder.html) and [dllist](https://github.com/wardbrian/dllist) libraries to obtain a list of files required for dependencies.
+This library uses the [dllist](https://github.com/wardbrian/dllist) library to discover required DLLs for dependencies.
 
 ## Installation
 
@@ -18,7 +18,9 @@ import depzip
 depzip.bundle(
     modules=[
         "matplotlib.backends.backend_qtagg",
-        "mpl_toolkits.mplot3d",
+        "matplotlib.figure",
+        "matplotlib.style",
+        "matplotlib",
         "numpy",
         "PySide6.QtCore",
         "PySide6.QtGui",

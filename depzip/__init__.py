@@ -1,10 +1,6 @@
 import os
 import sys
-from dllist import dllist
 from importlib import import_module
-from importlib.metadata import distribution, packages_distributions
-from modulefinder import ModuleFinder
-from zipfile import ZipFile, ZIP_DEFLATED
 
 
 def contains(string, substrings):
@@ -14,22 +10,25 @@ def contains(string, substrings):
 def bundle(modules=[], includes=[], excludes=[], output="bundle.zip"):
     directory = os.path.dirname(sys.executable)
 
-    # Use ModuleFinder to track module dependencies
-
-    finder = ModuleFinder()
-
-    finder.import_hook("encodings", None, ["*"])
+    # Import modules to discover their dependencies
 
     for m in modules:
-        finder.import_hook(m)
+        import_module(m)
+
+    dependencies = sys.modules.copy()
+
+    for m in ["__main__", __name__]:
+        dependencies.pop(m, None)
 
     # Collect files to bundle
 
-    bundle = {v.__file__ for v in finder.modules.values() if v.__file__}
+    bundle = {v.__file__ for v in dependencies.values() if getattr(v, "__file__", None)}
 
     # Find and collect license files for bundled modules
 
-    packages = {k.split(".", 1)[0] for k in finder.modules.keys()}
+    from importlib.metadata import distribution, packages_distributions
+
+    packages = {k.split(".", 1)[0] for k in dependencies.keys()}
     mapping = packages_distributions()
     licenses = {"Python": {os.path.join(directory, "LICENSE.txt")}}
 
@@ -42,12 +41,9 @@ def bundle(modules=[], includes=[], excludes=[], output="bundle.zip"):
                 if contains(f, ("license", "copying"))
             )
 
-    # Import modules to load any DLLs
+    # Collect DLLs to bundle
 
-    for m in modules:
-        import_module(m)
-
-    # Add DLLs to the bundle
+    from dllist import dllist
 
     for dll in dllist():
         if contains(os.path.basename(dll), ("vcruntime", "msvcp")):
@@ -71,6 +67,8 @@ def bundle(modules=[], includes=[], excludes=[], output="bundle.zip"):
     bundle = {f for f in bundle if not contains(f, excludes)}
 
     # Create the output zip file
+
+    from zipfile import ZipFile, ZIP_DEFLATED
 
     with ZipFile(output, mode="w", compression=ZIP_DEFLATED) as zf:
         for d, files in licenses.items():
