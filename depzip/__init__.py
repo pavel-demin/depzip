@@ -18,7 +18,7 @@ def bundle(applications=[], modules=[], includes=[], excludes=[], output="bundle
 
     dependencies = {
         n: m
-        for n, m in sys.modules.items()
+        for n, m in sys.modules.copy().items()
         if n not in ("__main__", __name__) and getattr(m, "__file__", None)
     }
 
