@@ -31,7 +31,7 @@ int HandleException()
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow)
 {
   wchar_t *name, *dot;
-  PyObject *module, *runpy, *callable, *dict, *main, *args, *result;
+  PyObject *module, *runpy, *callable, *main, *args, *result;
   PyConfig config;
 
   SetProcessDPIAware();
@@ -54,9 +54,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
   module = PyUnicode_FromWideChar(name, wcslen(name));
   runpy = PyImport_ImportModule("runpy");
   callable = PyObject_GetAttrString(runpy, "run_module");
-  dict = PyDict_New();
   main = PyUnicode_FromString("__main__");
-  args = PyTuple_Pack(3, module, dict, main);
+  args = PyTuple_Pack(3, module, Py_None, main);
   result = PyObject_CallObject(callable, args);
 
   if(result != NULL) return 0;
