@@ -1,0 +1,25 @@
+[project]
+name = "depzip"
+version = "0.1"
+description = "A small library for zipping Python application dependencies"
+authors = [{name = "Pavel Demin"}]
+dependencies = ["dllist"]
+requires-python = ">=3.12, <3.14"
+readme = "README.md"
+license = "MIT"
+
+[project.urls]
+Homepage = "https://github.com/pavel-demin/depzip"
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[tool.distutils.bdist_wheel]
+plat-name = "win_amd64"
+
+[tool.setuptools]
+packages = ["depzip", "pyside6-uic"]
+
+[tool.setuptools.package-data]
+depzip = ["*.exe"]
