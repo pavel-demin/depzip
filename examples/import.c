@@ -1,6 +1,6 @@
 /*
-compilation commands:
-x86_64-w64-mingw32-gcc -Wall -municode -mwindows -Iinclude -Llibs -s -o import312.exe import.c -lpython312
+compilation command:
+x86_64-w64-mingw32-gcc -Wall -Os -municode -mwindows -Iinclude -Llibs -s -o import312.exe import.c -lpython312
 */
 
 #include <windows.h>
