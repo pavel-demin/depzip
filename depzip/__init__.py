@@ -75,7 +75,7 @@ def bundle(applications=[], modules=[], includes=[], excludes=[], output="bundle
     from zipfile import ZipFile, ZIP_DEFLATED
 
     v = sys.version_info[:2]
-    exe = os.path.join(__path__[0], f"import{v[0]}{v[1]}.exe")
+    exe = os.path.join(__path__[0], f"run{v[0]}{v[1]}.exe")
 
     with ZipFile(output, "w", ZIP_DEFLATED) as zf:
         for a in applications:

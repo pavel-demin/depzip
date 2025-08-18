@@ -48,8 +48,8 @@ depzip.bundle(
 
 The source code of this script can be found in [examples/bundle.py](https://github.com/pavel-demin/depzip/tree/main/examples/bundle.py).
 
-The provided executable file `import.exe` can be used to run a Python application. It starts Python and imports a module with the same name as the executable file. For example, to run a Python file named `app.py`, the executable file `import.exe` should be renamed to `app.exe`.
+The provided executable file `run.exe` can be used to run a Python application. It initializes Python and runs a module with the same name as the executable file. For example, to run a Python module named `app`, the executable file `run.exe` should be renamed to `app.exe`.
 
-The `applications` parameter is a list of application names that is used to automatically copy `import.exe` to executable files with names in this list.
+The `applications` parameter is a list of application names that is used to automatically copy `run.exe` to executable files with names in this list.
 
-The source code of the executable file `import.exe` can be found in [examples/import.c](https://github.com/pavel-demin/depzip/tree/main/examples/import.c).
+The source code of the executable file `run.exe` can be found in [examples/run.c](https://github.com/pavel-demin/depzip/tree/main/examples/run.c).
