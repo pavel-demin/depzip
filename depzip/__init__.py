@@ -9,7 +9,27 @@ def bundle(applications=[], modules=[], includes=[], excludes=[], output="bundle
         string = string.casefold()
         return any(s.casefold() in string for s in substrings)
 
-    base = os.path.dirname(sys.executable)
+    def abspath(path, bases):
+        if os.path.isabs(path):
+            return path
+        for b in bases:
+            result = os.path.join(b, path)
+            if os.path.exists(result):
+                return result
+        return None
+
+    def relpath(path, bases):
+        if not os.path.isabs(path):
+            return path
+        for b in bases:
+            if path.startswith(b):
+                return os.path.relpath(path, b)
+        return None
+
+    bases = []
+    for p in sorted(os.path.abspath(p) for p in sys.path):
+        if not any(p.startswith(b) for b in bases):
+            bases.append(p)
 
     # Import modules to discover their dependencies
 
@@ -32,7 +52,7 @@ def bundle(applications=[], modules=[], includes=[], excludes=[], output="bundle
 
     packages = {n.split(".", 1)[0] for n in dependencies.keys()}
     mapping = packages_distributions()
-    licenses = {"Python": {os.path.join(base, "LICENSE.txt")}}
+    licenses = {"Python": {os.path.join(sys.base_prefix, "LICENSE.txt")}}
 
     for p in packages:
         for d in mapping.get(p, []):
@@ -51,14 +71,16 @@ def bundle(applications=[], modules=[], includes=[], excludes=[], output="bundle
     bundle.update(
         dll
         for dll in dllist()
-        if os.path.commonpath([dll, base]) == base
+        if relpath(dll, bases)
         and not contains(os.path.basename(dll), ("vcruntime", "msvcp"))
     )
 
     # Include additional files and directories
 
     for path in includes:
-        path = path if os.path.exists(path) else os.path.join(base, path)
+        path = abspath(path, bases)
+        if path is None:
+            continue
         if os.path.isdir(path):
             for root, dirs, files in os.walk(path):
                 dirs[:] = [d for d in dirs if d != "__pycache__"]
@@ -89,5 +111,4 @@ def bundle(applications=[], modules=[], includes=[], excludes=[], output="bundle
 
         for f in sorted(bundle):
             if os.path.isfile(f):
-                name = os.path.relpath(f, base) if os.path.isabs(f) else f
-                zf.write(f, name)
+                zf.write(f, relpath(f, bases))
