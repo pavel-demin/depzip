@@ -2,19 +2,12 @@ import depzip
 
 depzip.bundle(
     applications=[
+        "app",
         "pyside6-uic",
     ],
     modules=[
-        "matplotlib.backends.backend_qtagg",
-        "matplotlib.figure",
-        "matplotlib.style",
-        "matplotlib",
-        "numpy",
-        "PySide6.QtCore",
-        "PySide6.QtGui",
-        "PySide6.QtNetwork",
+        "app",
         "PySide6.QtUiTools",
-        "PySide6.QtWidgets",
     ],
     includes=[
         "Lib\\site-packages\\matplotlib\\mpl-data",

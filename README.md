@@ -1,6 +1,6 @@
-This library can be used for zipping Python application dependencies.
+The `depzip` library can be used for zipping dependencies of Python applications.
 
-This library uses the [dllist](https://github.com/wardbrian/dllist) library to discover required DLLs for dependencies.
+This library uses the [dllist](https://github.com/wardbrian/dllist) library to discover DLLs loaded by dependencies.
 
 ## Installation
 
@@ -17,19 +17,12 @@ import depzip
 
 depzip.bundle(
     applications=[
+        "app",
         "pyside6-uic",
     ],
     modules=[
-        "matplotlib.backends.backend_qtagg",
-        "matplotlib.figure",
-        "matplotlib.style",
-        "matplotlib",
-        "numpy",
-        "PySide6.QtCore",
-        "PySide6.QtGui",
-        "PySide6.QtNetwork",
+        "app",
         "PySide6.QtUiTools",
-        "PySide6.QtWidgets",
     ],
     includes=[
         "Lib\\site-packages\\matplotlib\\mpl-data",
@@ -50,6 +43,14 @@ The source code of this script can be found in [examples/bundle.py](https://gith
 
 The provided executable file `run.exe` can be used to run a Python application. It initializes Python and runs a module with the same name as the executable file. For example, to run a Python module named `app`, the executable file `run.exe` should be renamed to `app.exe`.
 
+The source code of the executable file `run.exe` can be found in [examples/run.c](https://github.com/pavel-demin/depzip/tree/main/examples/run.c).
+
 The `applications` parameter is a list of application names that is used to automatically copy `run.exe` to executable files with names in this list.
 
-The source code of the executable file `run.exe` can be found in [examples/run.c](https://github.com/pavel-demin/depzip/tree/main/examples/run.c).
+The `modules` parameter is a list of Python modules used by the applications. These modules are copied to the output file along with all their dependencies.
+
+The `includes` parameter is a list of additional files and directories to be copied to the output file.
+
+The `excludes` parameter is a list of files that should not be copied to the output file.
+
+The `output` parameter is the name of the output file.
