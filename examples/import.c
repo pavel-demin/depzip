@@ -56,7 +56,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
   callable = PyObject_GetAttrString(runpy, "run_module");
   main = PyUnicode_FromString("__main__");
   args = PyTuple_Pack(3, module, Py_None, main);
-  result = PyObject_CallObject(callable, args);
+  result = PyObject_Call(callable, args, NULL);
 
   if(result != NULL) return 0;
   else return HandleException();
