@@ -28,7 +28,7 @@ def bundle(applications=[], modules=[], includes=[], excludes=[], output="bundle
 
     bases = []
     for p in sorted(os.path.abspath(p) for p in sys.path):
-        if not any(p.startswith(b) for b in bases):
+        if not any(p.startswith(b + os.path.sep) for b in bases):
             bases.append(p)
 
     # Import modules to discover their dependencies
