@@ -70,7 +70,7 @@ def bundle(applications=[], modules=[], includes=[], excludes=[], output="bundle
 
     bundle.update(
         dll
-        for dll in dllist()
+        for dll in (os.path.normpath(dll) for dll in dllist())
         if relpath(dll, bases)
         and not contains(os.path.basename(dll), ("vcruntime", "msvcp"))
     )
