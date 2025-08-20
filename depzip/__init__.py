@@ -1,35 +1,8 @@
-import os
 import sys
 from importlib import import_module
 
 
 def bundle(applications=[], modules=[], includes=[], excludes=[], output="bundle.zip"):
-
-    def contains(string, substrings):
-        string = string.casefold()
-        return any(s.casefold() in string for s in substrings)
-
-    def abspath(path, bases):
-        if os.path.isabs(path):
-            return path
-        for b in bases:
-            result = os.path.join(b, path)
-            if os.path.exists(result):
-                return result
-        return None
-
-    def relpath(path, bases):
-        if not os.path.isabs(path):
-            return path
-        for b in bases:
-            if path.startswith(b):
-                return os.path.relpath(path, b)
-        return None
-
-    bases = []
-    for p in sorted(os.path.abspath(p) for p in sys.path):
-        if not any(p.startswith(b + os.path.sep) for b in bases):
-            bases.append(p)
 
     # Import modules to discover their dependencies
 
@@ -42,9 +15,39 @@ def bundle(applications=[], modules=[], includes=[], excludes=[], output="bundle
         if n not in ("__main__", __name__) and getattr(m, "__file__", None)
     }
 
+    # Helper functions
+
+    from pathlib import Path
+
+    def contains(string, substrings):
+        string = string.casefold()
+        return any(s.casefold() in string for s in substrings)
+
+    def abspath(path, bases):
+        if path.is_absolute():
+            return path
+        for b in bases:
+            result = b / path
+            if result.exists():
+                return result
+        return None
+
+    def relpath(path, bases):
+        if not path.is_absolute():
+            return path
+        for b in bases:
+            if path.is_relative_to(b):
+                return path.relative_to(b)
+        return None
+
+    bases = []
+    for p in sorted(Path(p).resolve() for p in sys.path):
+        if not any(p.is_relative_to(b) for b in bases):
+            bases.append(p)
+
     # Collect files to bundle
 
-    bundle = {m.__file__ for m in dependencies.values()}
+    bundle = {Path(m.__file__) for m in dependencies.values()}
 
     # Find and collect license files for bundled modules
 
@@ -53,14 +56,14 @@ def bundle(applications=[], modules=[], includes=[], excludes=[], output="bundle
     packages = {n.split(".", 1)[0] for n in dependencies.keys()}
     mapping = packages_distributions()
     version = ".".join(str(v) for v in sys.version_info[:3])
-    licenses = {f"Python-{version}": {os.path.join(sys.base_prefix, "LICENSE.txt")}}
+    licenses = {f"Python-{version}": {Path(sys.base_prefix) / "LICENSE.txt"}}
 
     for p in packages:
         for n in mapping.get(p, []):
             d = distribution(n)
             licenses.setdefault(f"{n}-{d.version}", set()).update(
-                os.path.join(root, f)
-                for root, _, files in os.walk(d._path)
+                root / f
+                for root, _, files in Path(d._path).walk()
                 for f in files
                 if contains(f, ("license", "copying"))
             )
@@ -71,45 +74,44 @@ def bundle(applications=[], modules=[], includes=[], excludes=[], output="bundle
 
     bundle.update(
         dll
-        for dll in (os.path.normpath(dll) for dll in dllist())
-        if relpath(dll, bases)
-        and not contains(os.path.basename(dll), ("vcruntime", "msvcp"))
+        for dll in (Path(dll) for dll in dllist())
+        if relpath(dll, bases) and not contains(dll.name, ("vcruntime", "msvcp"))
     )
 
     # Include additional files and directories
 
-    for path in includes:
-        path = abspath(path, bases)
+    for i in includes:
+        path = abspath(Path(i), bases)
         if path is None:
             continue
-        if os.path.isdir(path):
-            for root, dirs, files in os.walk(path):
+        if path.is_dir():
+            for root, dirs, files in path.walk():
                 dirs[:] = [d for d in dirs if d != "__pycache__"]
-                bundle.update(os.path.join(root, f) for f in files)
-        elif os.path.isfile(path):
+                bundle.update(root / f for f in files)
+        elif path.is_file():
             bundle.add(path)
 
     # Exclude specified files
 
-    bundle = {f for f in bundle if not contains(f, excludes)}
+    bundle = {f for f in bundle if not contains(f.name, excludes)}
 
     # Create the output zip file
 
     from zipfile import ZipFile, ZIP_DEFLATED
 
     version = "".join(str(v) for v in sys.version_info[:2])
-    exe = os.path.join(os.path.dirname(__file__), f"run{version}.exe")
+    run = Path(__file__).parent / f"run{version}.exe"
 
     with ZipFile(output, "w", ZIP_DEFLATED) as zf:
-        for a in applications:
-            if os.path.isfile(exe):
-                zf.write(exe, f"{a}.exe")
+        for a in sorted(applications):
+            if run.is_file():
+                zf.write(run, f"{a}.exe")
 
         for d, files in licenses.items():
             for f in sorted(files):
-                name = os.path.join("Licenses", d, os.path.basename(f))
+                name = Path("Licenses") / d / f.name
                 zf.write(f, name)
 
         for f in sorted(bundle):
-            if os.path.isfile(f):
+            if f.is_file():
                 zf.write(f, relpath(f, bases))
