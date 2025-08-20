@@ -52,14 +52,15 @@ def bundle(applications=[], modules=[], includes=[], excludes=[], output="bundle
 
     packages = {n.split(".", 1)[0] for n in dependencies.keys()}
     mapping = packages_distributions()
-    licenses = {"Python": {os.path.join(sys.base_prefix, "LICENSE.txt")}}
+    version = ".".join(str(v) for v in sys.version_info[:3])
+    licenses = {f"Python-{version}": {os.path.join(sys.base_prefix, "LICENSE.txt")}}
 
     for p in packages:
-        for d in mapping.get(p, []):
-            path = distribution(d)._path
-            licenses.setdefault(d, set()).update(
+        for n in mapping.get(p, []):
+            d = distribution(n)
+            licenses.setdefault(f"{n}-{d.version}", set()).update(
                 os.path.join(root, f)
-                for root, _, files in os.walk(path)
+                for root, _, files in os.walk(d._path)
                 for f in files
                 if contains(f, ("license", "copying"))
             )
@@ -96,8 +97,8 @@ def bundle(applications=[], modules=[], includes=[], excludes=[], output="bundle
 
     from zipfile import ZipFile, ZIP_DEFLATED
 
-    v = sys.version_info[:2]
-    exe = os.path.join(os.path.dirname(__file__), f"run{v[0]}{v[1]}.exe")
+    version = "".join(str(v) for v in sys.version_info[:2])
+    exe = os.path.join(os.path.dirname(__file__), f"run{version}.exe")
 
     with ZipFile(output, "w", ZIP_DEFLATED) as zf:
         for a in applications:
