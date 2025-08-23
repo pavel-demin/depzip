@@ -35,6 +35,7 @@ def bundle(applications=[], modules=[], includes=[], excludes=[], output="bundle
     def relpath(path, bases):
         if not path.is_absolute():
             return path
+        path = path.resolve()
         for b in bases:
             if path.is_relative_to(b):
                 return path.relative_to(b)
