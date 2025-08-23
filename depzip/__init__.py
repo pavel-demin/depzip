@@ -47,7 +47,7 @@ def bundle(applications=[], modules=[], includes=[], excludes=[], output="bundle
 
     # Collect files to bundle
 
-    bundle = {Path(m.__file__) for m in dependencies.values()}
+    contents = {Path(m.__file__) for m in dependencies.values()}
 
     # Find and collect license files for bundled modules
 
@@ -72,7 +72,7 @@ def bundle(applications=[], modules=[], includes=[], excludes=[], output="bundle
 
     from dllist import dllist
 
-    bundle.update(
+    contents.update(
         dll
         for dll in (Path(dll) for dll in dllist())
         if relpath(dll, bases) and not contains(dll.name, ("vcruntime", "msvcp"))
@@ -87,13 +87,13 @@ def bundle(applications=[], modules=[], includes=[], excludes=[], output="bundle
         if path.is_dir():
             for root, dirs, files in path.walk():
                 dirs[:] = [d for d in dirs if d != "__pycache__"]
-                bundle.update(root / f for f in files)
+                contents.update(root / f for f in files)
         elif path.is_file():
-            bundle.add(path)
+            contents.add(path)
 
     # Exclude specified files
 
-    bundle = {f for f in bundle if not contains(f.name, excludes)}
+    contents = {f for f in contents if not contains(f.name, excludes)}
 
     # Create the output zip file
 
@@ -112,6 +112,6 @@ def bundle(applications=[], modules=[], includes=[], excludes=[], output="bundle
                 name = Path("Licenses") / d / f.name
                 zf.write(f, name)
 
-        for f in sorted(bundle):
+        for f in sorted(contents):
             if f.is_file():
                 zf.write(f, relpath(f, bases))
