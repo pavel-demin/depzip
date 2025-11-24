@@ -71,7 +71,7 @@ def bundle(applications=[], modules=[], includes=[], excludes=[], output="bundle
 
     # Collect DLLs to bundle
 
-    from dllist import dllist
+    from ctypes.util import dllist
 
     contents.update(
         dll

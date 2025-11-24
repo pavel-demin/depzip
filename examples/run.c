@@ -1,6 +1,6 @@
 /*
 compilation command:
-x86_64-w64-mingw32-gcc -Wall -Os -municode -mwindows -Iinclude -Llibs -s -o run312.exe run.c -lpython312
+x86_64-w64-mingw32-gcc -Wall -Os -municode -mwindows -Iinclude -Llibs -s -o run314.exe run.c -lpython314
 */
 
 #include <windows.h>

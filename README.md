@@ -1,6 +1,6 @@
 The `depzip` library can be used for zipping dependencies of Python applications.
 
-This library uses the [dllist](https://github.com/wardbrian/dllist) library to discover DLLs loaded by dependencies.
+This library uses the [sys.modules](https://docs.python.org/3.14/library/sys.html#sys.modules) dictionary to discover dependencies and the [ctypes.util.dllist](https://docs.python.org/3.14/library/ctypes.html#ctypes.util.dllist) function to discover DLLs loaded by dependencies.
 
 ## Installation
 
