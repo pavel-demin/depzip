@@ -1,6 +1,6 @@
 [project]
 name = "depzip"
-version = "0.8"
+version = "0.9"
 description = "A small library for zipping Python application dependencies"
 authors = [{name = "Pavel Demin"}]
 requires-python = ">=3.14, <3.15"

@@ -62,12 +62,14 @@ def bundle(applications=[], modules=[], includes=[], excludes=[], output="bundle
     for p in packages:
         for n in mapping.get(p, []):
             d = distribution(n)
-            licenses.setdefault(f"{n}-{d.version}", set()).update(
-                root / f
-                for root, _, files in Path(d._path).walk()
-                for f in files
-                if contains(f, ("license", "copying"))
-            )
+            k = f"{n}-{d.version}"
+            licenses[k] = set()
+            for root, dirs, files in Path(d._path).walk():
+                for f in files:
+                    if contains(f, ("license", "copying")):
+                        licenses[k].add(root / f)
+                if licenses[k]:
+                    break
 
     # Collect DLLs to bundle
 
